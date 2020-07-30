@@ -1,0 +1,24 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\ruizh\\OneDrive - Lancaster University\\Code\\java\\Processing\\libraries\\box2d_processing\\library\\box2d_processing.jar",
+        "c:\\Users\\ruizh\\OneDrive - Lancaster University\\Code\\java\\Processing\\libraries\\box2d_processing\\library\\jbox2d-library-2.2.1-ds.jar",
+        "d:\\processing-3.5.4\\core\\library\\core.jar",
+        "d:\\processing-3.5.4\\core\\library\\gluegen-rt.jar",
+        "d:\\processing-3.5.4\\core\\library\\gluegen-rt-natives-linux-aarch64.jar",
+        "d:\\processing-3.5.4\\core\\library\\gluegen-rt-natives-linux-amd64.jar",
+        "d:\\processing-3.5.4\\core\\library\\gluegen-rt-natives-linux-armv6hf.jar",
+        "d:\\processing-3.5.4\\core\\library\\gluegen-rt-natives-linux-i586.jar",
+        "d:\\processing-3.5.4\\core\\library\\gluegen-rt-natives-macosx-universal.jar",
+        "d:\\processing-3.5.4\\core\\library\\gluegen-rt-natives-windows-amd64.jar",
+        "d:\\processing-3.5.4\\core\\library\\gluegen-rt-natives-windows-i586.jar",
+        "d:\\processing-3.5.4\\core\\library\\jogl-all.jar",
+        "d:\\processing-3.5.4\\core\\library\\jogl-all-natives-linux-aarch64.jar",
+        "d:\\processing-3.5.4\\core\\library\\jogl-all-natives-linux-amd64.jar",
+        "d:\\processing-3.5.4\\core\\library\\jogl-all-natives-linux-armv6hf.jar",
+        "d:\\processing-3.5.4\\core\\library\\jogl-all-natives-linux-i586.jar",
+        "d:\\processing-3.5.4\\core\\library\\jogl-all-natives-macosx-universal.jar",
+        "d:\\processing-3.5.4\\core\\library\\jogl-all-natives-windows-amd64.jar",
+        "d:\\processing-3.5.4\\core\\library\\jogl-all-natives-windows-i586.jar"
+    ]
+}
