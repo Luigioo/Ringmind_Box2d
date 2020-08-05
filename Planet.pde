@@ -21,17 +21,17 @@ class Planet{
         p.body.applyForce(f, p.body.getWorldCenter());
     }
     
-    void applyG(Moon p){
-        Vec2 ppos = p.body.getPosition();
-        Vec2 f = worldPosition.sub(ppos);
-        float distance = f.length();
-        float minDistance = box2d.scalarPixelsToWorld(minPixelsDistance);
-        distance = Math.max(minDistance, distance);
-        f.normalize();
-        f = f.mulLocal(G*((mass*p.body.getMass())/(distance*distance)));
-        p.body.applyForce(f, p.body.getWorldCenter());
+    //void applyG(Moon p){
+    //    Vec2 ppos = p.body.getPosition();
+    //    Vec2 f = worldPosition.sub(ppos);
+    //    float distance = f.length();
+    //    float minDistance = box2d.scalarPixelsToWorld(minPixelsDistance);
+    //    distance = Math.max(minDistance, distance);
+    //    f.normalize();
+    //    f = f.mulLocal(G*((mass*p.body.getMass())/(distance*distance)));
+    //    p.body.applyForce(f, p.body.getWorldCenter());
 
-    }
+    //}
     void applyG(Camera c){
         Vec2 ppos = c.worldpos;
         Vec2 f = box2d.coordPixelsToWorld(pixelPosition).sub(ppos);

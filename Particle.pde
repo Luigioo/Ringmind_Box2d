@@ -16,7 +16,7 @@ class Particle {
     col = color(127);
   }
   Particle(float x, float y){
-    this(x,y,2);
+    this(x,y,3);
   }
   
   void setOrbitVelocity(Planet pn){

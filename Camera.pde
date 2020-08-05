@@ -30,8 +30,8 @@ class Camera{
     dis.mulLocal(v);
 
     vel = dis;
-    println(vel.x);
-    println(vel.y);
+    //println(vel.x);
+    //println(vel.y);
   }
   void display(){
     pos = box2d.coordWorldToPixels(worldpos);

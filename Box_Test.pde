@@ -8,21 +8,23 @@ import org.jbox2d.common.*;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.*;
 
+
 // A list for all of our rectangles
 ArrayList<Particle> pars;
 ArrayList<Mun> muns = new ArrayList<Mun>();
-ArrayList<TempParti> toaddnremove = new ArrayList<TempParti>();
+ArrayList<Merge> toaddnremove = new ArrayList<Merge>();
 
 Box2DProcessing box2d;
 Planet planet;
-
 Camera camera;
 
 float G = 6.674e-11f;
 int partis = 400;
 float inner_ringdius = 300f;
 float outter_ringdius = 430f;
-float moon_min = 10.0f;
+float moon_min = 8.0f;
+float moon_max = 14.0f;
+int burstNum = 16;
 
 boolean previousM = false;
 boolean currentM = false;
@@ -48,15 +50,15 @@ void setup() {
     p.setOrbitVelocity(planet);
     pars.add(p);
   }
-  Mun mu = new Mun();
-  muns.add(mu);
-  
-  
+
   camera = new Camera();
   camera.setOrbitVelocity(planet);
   //Moon m2 = new Moon();
   //m2.setOrbitVelocity(planet);
   //moons.add(m2);
+  Mun mu = new Mun(camera.pos.x, camera.pos.y, moon_min);
+  //print(mu.body.getMass());
+  muns.add(mu);
 }
 
 void draw() {
@@ -66,14 +68,30 @@ void draw() {
   box2d.step(1f/60f,10,8);
   //particles and bodies to be added and removed
 
-  for(TempParti tp:toaddnremove){
+  for(Merge tp:toaddnremove){
     //print("addnremove");
-    if(tp.r>moon_min){
-      muns.add(new Mun(tp.pos.x, tp.pos.y, tp.r));
+    if(tp.r>moon_max){
+      float newr = tp.r*tp.r/burstNum;
+      newr = (float)Math.sqrt(newr);
+      for(int i=burstNum;i>0;i--){
+        float radians = 2*PI*i/burstNum;
+        float radius = 20.0f;
+        float x = radius*(float)Math.cos(radians)+tp.pos.x;
+        float y = radius*(float)Math.sin(radians)+tp.pos.y;
+        Particle newp = new Particle(x,y,newr);
+        newp.setOrbitVelocity(planet);
+        pars.add(newp);
+      }
+    }
+    else if(tp.r>moon_min){
+      Mun m = new Mun(tp.pos.x, tp.pos.y, tp.r);
+      muns.add(m);
+      m.body.setLinearVelocity(tp.vel);
+      
     }else{
       Particle newParti = new Particle(tp.pos.x, tp.pos.y, tp.r);
       pars.add(newParti);
-      newParti.setOrbitVelocity(planet);
+      newParti.body.setLinearVelocity(tp.vel);
     }
     box2d.destroyBody(tp.b1);
     box2d.destroyBody(tp.b2);
@@ -111,7 +129,6 @@ void draw() {
     displayNormal();
   }
   
-  
   //handle inputs
   if(mousePressed){
     previousM = true;
@@ -119,18 +136,7 @@ void draw() {
     previousM = false;
   }
 }
-class TempParti{
-  Vec2 pos;
-  float r;
-  Body b1;
-  Body b2;
-  TempParti(Vec2 p, float r, Body b1, Body b2){
-    pos = p;
-    this.r = r;
-    this.b1 = b1;
-    this.b2 = b2;
-  }
-}
+
 void beginContact(Contact cp){
   Fixture f1 = cp.getFixtureA();
   Fixture f2 = cp.getFixtureB();
@@ -138,36 +144,32 @@ void beginContact(Contact cp){
   Body b2 = f2.getBody();
   Object o1 = b1.getUserData();
   Object o2 = b2.getUserData();
-  //if(o1 instanceof Particle){
-  //  Particle p1 = (Particle) o1;
-  //  if(o2 instanceof Particle){
-  //    Particle p2 = (Particle) o2;
-  //  }else{
-  //    Moon m2 = (Moon) o2;
-  //  }
-  //}
-  //if two particles collide
-  if(!(o1 instanceof Mun) && !(o2 instanceof Mun)){
-        Particle p1 = (Particle) o1;
-        Particle p2 = (Particle) o2;
-        
-        if(p1.isRemoved || p2.isRemoved) {return;}
-        pars.remove(p1);
-        pars.remove(p2);
-        p1.isRemoved = true;
-        p2.isRemoved = true;
-        
-        Vec2 newpos = box2d.coordWorldToPixels(b1.getPosition()).add(box2d.coordWorldToPixels((b2.getPosition())));
-        float newr = (float)Math.sqrt(p1.r*p1.r+p2.r*p2.r);
-        newpos.mulLocal(0.5f);
-        //println(newpos.x);
-        //println(newpos.y);
-        //println(newr);
-        TempParti tp = new TempParti(newpos, newr, b1, b2);
-        toaddnremove.add(tp);
-  }else{
-    //print("collide"); 
+  
+  float totalm = b1.getMass()+b2.getMass();
+  float prob = sigmoid(totalm, 15, 0.142);
+  if(random(1)<prob){
+    Particle p1 = (Particle) o1;
+    Particle p2 = (Particle) o2;
+    
+    if(p1.isRemoved || p2.isRemoved) {return;}
+    if(p1 instanceof Mun){muns.remove(p1);}else{pars.remove(p1);}
+    if(p2 instanceof Mun){muns.remove(p2);}else{pars.remove(p2);}
+  
+    p1.isRemoved = true;
+    p2.isRemoved = true;
+    
+    //Vec2 newpos = box2d.coordWorldToPixels(b1.getPosition()).add(box2d.coordWorldToPixels((b2.getPosition())));
+    //float newr = (float)Math.sqrt(p1.r*p1.r+p2.r*p2.r);
+    //newpos.mulLocal(0.5f);
+    ////println(newpos.x);
+    ////println(newpos.y);
+    ////println(newr);
+    //Merge tp = new Merge(newpos, newr, b1, b2);
+    
+    Merge tp = new Merge(p1, p2, b1, b2);
+    toaddnremove.add(tp);
   }
+
 }
 void endContact(Contact cp) {
 }
@@ -186,7 +188,7 @@ void displayAll(){
   pushMatrix();
     Vec2 moonpos = box2d.coordWorldToPixels(camera.worldpos);
     //Vec2 moonpos = moon.pixelPosition;
-    translate(width/2,height/2);
+    translate(width/2,height/2-365);
     
     Vec2 disrotate = planet.pixelPosition.sub(moonpos);
     float disatan = disrotate.y/disrotate.x;
@@ -211,5 +213,7 @@ void displayAll(){
 }
 float rdbt(float min, float max){
   return (float)random(1)*(max-min)+min;
-  
+}
+float sigmoid(float x, float shift, float shrink){
+  return 1/(1+exp((-x+shift)*shrink));
 }

@@ -34,7 +34,11 @@ class Mun extends Particle{
     f = f.mulLocal(G*((body.getMass()*p.body.getMass())/(distance*distance)));
     p.body.applyForce(f, p.body.getWorldCenter());
     f.mulLocal(-1);
-    //body.applyForce(f, body.getWorldCenter());
+    if(p instanceof Mun){
+    }else{
+      body.applyForce(f, body.getWorldCenter());
+    }
+   
   }
   
   void display(){
