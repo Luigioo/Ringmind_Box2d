@@ -3,20 +3,35 @@ class Particle {
   // We need to keep track of a Body and a radius
   Body body;
   float r;
-  float density = 5e6f;
+  float density;
+  float m;
+  float rockPercent;
+  
   color col;
   
   boolean isRemoved = false;
+  float pixeld;
+  float pixelrockd;
+  
   Particle(){}
-  Particle(float x, float y, float r_) {
-    r = r_;
-    // This function puts the particle in the Box2d world
+  Particle(float x, float y, float m_, float rp) {
+    m = m_;
+    rockPercent = rp;
+    setDensity(rockPercent, m);
+
     makeBody(x, y, r);
     body.setUserData(this);
-    col = color(127);
+    //col = color(255,255,255);
+    //println(r);
+    col = getColor(r);
+    //println(body.getMass());
+    //println(body.getMass()/r/r/PI);
+    pixeld = box2d.scalarWorldToPixels(r)*2;
+    pixelrockd = (float)Math.sqrt(rockPercent*box2d.scalarWorldToPixels(r)*2);
   }
   Particle(float x, float y){
-    this(x,y,3);
+    //this(x,y,0.62832f);
+    this(x,y,defaultMass, random(1));
   }
   
   void setOrbitVelocity(Planet pn){
@@ -29,13 +44,21 @@ class Particle {
     dis.mulLocal(v);
     body.setLinearVelocity(dis);
   }
+  
+  void setDensity(float rock, float totalmass){
+    density = rock*rockDensity+(1-rock)*iceDensity;
+    r = (float)Math.sqrt(totalmass/density/PI);
+  }
   // 
   void display() {
     // We look at each body and get its screen position
     Vec2 pos = box2d.getBodyPixelCoord(body);
     fill(col);
     noStroke();
-    ellipse(pos.x, pos.y, r*2, r*2);
+    ellipse(pos.x, pos.y, pixeld, pixeld);
+    fill(rockColor);
+    ellipse(pos.x, pos.y, pixelrockd, pixelrockd);
+    //println(dia);
   }
   void displayAround(Vec2 center, float radians){
     fill(col);
@@ -43,7 +66,9 @@ class Particle {
     pushMatrix();
       Vec2 displayedpos = box2d.getBodyPixelCoord(body).sub(center);
       rotate(radians);
-      ellipse(displayedpos.x, displayedpos.y, r*2, r*2);
+      ellipse(displayedpos.x, displayedpos.y, pixeld, pixeld);
+      fill(rockColor);
+      ellipse(displayedpos.x, displayedpos.y, pixelrockd, pixelrockd);
     popMatrix();
   }
 
@@ -60,7 +85,7 @@ class Particle {
 
     // Make the body's shape a circle
     CircleShape cs = new CircleShape();
-    cs.m_radius = box2d.scalarPixelsToWorld(r);
+    cs.m_radius = r;
 
     FixtureDef fd = new FixtureDef();
     fd.shape = cs;

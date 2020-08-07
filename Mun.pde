@@ -2,24 +2,40 @@ class Mun extends Particle{
   
   float forceRange = 200;
   
-  public Mun(){
-    r=moon_min;
-    float radians = rdbt(0,2*PI);
-    float this_ringdius = (inner_ringdius+outter_ringdius)/2;
-    float x = this_ringdius*(float)Math.cos(radians)+planet.pixelPosition.x;
-    float y = this_ringdius*(float)Math.sin(radians)+planet.pixelPosition.y;
+  //public Mun(){
+  //  r=moon_min;
+  //  float radians = rdbt(0,2*PI);
+  //  float this_ringdius = (inner_ringdius+outter_ringdius)/2;
+  //  float x = this_ringdius*(float)Math.cos(radians)+planet.pixelPosition.x;
+  //  float y = this_ringdius*(float)Math.sin(radians)+planet.pixelPosition.y;
     
-    makeBody(x, y, r);
-    body.setUserData(this);
-    setOrbitVelocity(planet);
-  }
+  //  makeBody(x, y, r);
+  //  body.setUserData(this);
+  //  setOrbitVelocity(planet);
+    
+  //  col = getColor(r);
+
+  //}
   
-  public Mun(float x, float y, float r_) {
-    r = r_;
-    // This function puts the particle in the Box2d world
+  public Mun(float x, float y, float m_, float rp) {
+    m = m_;
+    rockPercent = rp;
+    setDensity(rp, m_);
     makeBody(x, y, r);
     body.setUserData(this);
-    setOrbitVelocity(planet);
+    //setOrbitVelocity(planet);
+    col = getColor(r);
+    //    print(body.getLinearVelocity().x);
+    //print(body.getLinearVelocity().y);
+    //println(body.getMass());
+    pixeld = box2d.scalarWorldToPixels(r)*2;
+    pixelrockd = (float)Math.sqrt(rockPercent*box2d.scalarWorldToPixels(r)*2);
+    
+    //println(rockPercent);
+    
+  }
+  Mun(float x, float y){
+    this(x,y,defaultMass*10, random(1));
   }
   
   void applyG(Particle p){
@@ -42,27 +58,31 @@ class Mun extends Particle{
   }
   
   void display(){
-    Vec2 pixelPosition = box2d.coordWorldToPixels(body.getPosition());
+    Vec2 pos = box2d.coordWorldToPixels(body.getPosition());
     //println("mass"+body.getMass());
     noStroke();
-    fill(255,0,0,127);
-    ellipse(pixelPosition.x,pixelPosition.y, r*2, r*2);
+    fill(col);
+    ellipse(pos.x, pos.y, pixeld, pixeld);
+    fill(rockColor);
+    ellipse(pos.x, pos.y, pixelrockd, pixelrockd);
 
     noFill();
-    stroke(0,255,0,127);
-    ellipse(pixelPosition.x, pixelPosition.y, forceRange*2, forceRange*2);
+    stroke(grav);
+    ellipse(pos.x, pos.y, forceRange*2, forceRange*2);
   }
   void displayAround(Vec2 center, float radians){
       noStroke();
-      fill(255,0,0,127);
+      fill(col);
     pushMatrix();
       Vec2 pixelPosition = box2d.coordWorldToPixels(body.getPosition());
       Vec2 displayedpos = pixelPosition.sub(center);
       rotate(radians);
-      ellipse(displayedpos.x, displayedpos.y, r*2, r*2);
+      ellipse(displayedpos.x, displayedpos.y, pixeld, pixeld);
+      fill(rockColor);
+      ellipse(displayedpos.x, displayedpos.y, pixelrockd, pixelrockd);
       
       noFill();
-      stroke(0,255,0,127);
+      stroke(grav);
       ellipse(displayedpos.x, displayedpos.y, forceRange*2, forceRange*2);
     
     popMatrix();

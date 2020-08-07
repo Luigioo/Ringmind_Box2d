@@ -19,21 +19,31 @@ Planet planet;
 Camera camera;
 
 float G = 6.674e-11f;
-int partis = 400;
+int partis = 500;
 float inner_ringdius = 300f;
 float outter_ringdius = 430f;
 float moon_min = 8.0f;
-float moon_max = 14.0f;
-int burstNum = 16;
+//float moon_max = 16.0f;
+int burstNum = 8;
+float burstAccel = 0.01f;
+float rockDensity = 5.0f;
+float iceDensity = 1.0f;
+float defaultMass = 0.1f*PI;
+
+color backColor = color(27, 38, 44);
+color grav = color(0,183,194);
+color planetColor = color(5, 219, 242);
+color rockColor = color(0);
 
 boolean previousM = false;
 boolean currentM = false;
+Vec2[] burstVel;
 
 void setup() {
   size(1200, 1200);
   //frameRate(30);
   // Initialize and create the Box2D world
-  box2d = new Box2DProcessing(this, 1e4f);  
+  box2d = new Box2DProcessing(this);  
   box2d.createWorld();
   box2d.setGravity(0,0);
   box2d.listenForCollisions();
@@ -56,45 +66,25 @@ void setup() {
   //Moon m2 = new Moon();
   //m2.setOrbitVelocity(planet);
   //moons.add(m2);
-  Mun mu = new Mun(camera.pos.x, camera.pos.y, moon_min);
+  Mun mu = new Mun(camera.pos.x, camera.pos.y);
+  mu.setOrbitVelocity(planet);
   //print(mu.body.getMass());
   muns.add(mu);
+  calc_burst();
+  
+  //println(box2d.scalarPixelsToWorld(1));
+  
 }
 
 void draw() {
 
-  background(255);
+  background(backColor);
   //println(frameRate);
   box2d.step(1f/60f,10,8);
+  
   //particles and bodies to be added and removed
-
   for(Merge tp:toaddnremove){
-    //print("addnremove");
-    if(tp.r>moon_max){
-      float newr = tp.r*tp.r/burstNum;
-      newr = (float)Math.sqrt(newr);
-      for(int i=burstNum;i>0;i--){
-        float radians = 2*PI*i/burstNum;
-        float radius = 20.0f;
-        float x = radius*(float)Math.cos(radians)+tp.pos.x;
-        float y = radius*(float)Math.sin(radians)+tp.pos.y;
-        Particle newp = new Particle(x,y,newr);
-        newp.setOrbitVelocity(planet);
-        pars.add(newp);
-      }
-    }
-    else if(tp.r>moon_min){
-      Mun m = new Mun(tp.pos.x, tp.pos.y, tp.r);
-      muns.add(m);
-      m.body.setLinearVelocity(tp.vel);
-      
-    }else{
-      Particle newParti = new Particle(tp.pos.x, tp.pos.y, tp.r);
-      pars.add(newParti);
-      newParti.body.setLinearVelocity(tp.vel);
-    }
-    box2d.destroyBody(tp.b1);
-    box2d.destroyBody(tp.b2);
+    tp.reborn();
   }
   toaddnremove.clear();
   
@@ -138,38 +128,7 @@ void draw() {
 }
 
 void beginContact(Contact cp){
-  Fixture f1 = cp.getFixtureA();
-  Fixture f2 = cp.getFixtureB();
-  Body b1 = f1.getBody();
-  Body b2 = f2.getBody();
-  Object o1 = b1.getUserData();
-  Object o2 = b2.getUserData();
-  
-  float totalm = b1.getMass()+b2.getMass();
-  float prob = sigmoid(totalm, 15, 0.142);
-  if(random(1)<prob){
-    Particle p1 = (Particle) o1;
-    Particle p2 = (Particle) o2;
-    
-    if(p1.isRemoved || p2.isRemoved) {return;}
-    if(p1 instanceof Mun){muns.remove(p1);}else{pars.remove(p1);}
-    if(p2 instanceof Mun){muns.remove(p2);}else{pars.remove(p2);}
-  
-    p1.isRemoved = true;
-    p2.isRemoved = true;
-    
-    //Vec2 newpos = box2d.coordWorldToPixels(b1.getPosition()).add(box2d.coordWorldToPixels((b2.getPosition())));
-    //float newr = (float)Math.sqrt(p1.r*p1.r+p2.r*p2.r);
-    //newpos.mulLocal(0.5f);
-    ////println(newpos.x);
-    ////println(newpos.y);
-    ////println(newr);
-    //Merge tp = new Merge(newpos, newr, b1, b2);
-    
-    Merge tp = new Merge(p1, p2, b1, b2);
-    toaddnremove.add(tp);
-  }
-
+  new Merge(cp);
 }
 void endContact(Contact cp) {
 }
@@ -211,9 +170,40 @@ void displayAll(){
   popMatrix();
 
 }
+
+void calc_burst(){
+  burstVel = new Vec2[burstNum];
+  for(int i=burstNum-1;i>=0;i--){
+    float angle = (float)i / (float)burstNum*2.0f*PI;
+    //println("angle"+angle);
+    float x = burstAccel*cos(angle);
+    float y = burstAccel*sin(angle);
+
+    if(x<0.00001f&&x>-0.00001f){
+      x = 0;
+    }
+    if(y<0.00001f&&y>-0.00001f){
+      y = 0;
+    }
+    burstVel[i] = new Vec2(x,y);
+    //println(burstVel[i].x+"   "+burstVel[i].y);
+  }
+}
+
 float rdbt(float min, float max){
   return (float)random(1)*(max-min)+min;
 }
 float sigmoid(float x, float shift, float shrink){
-  return 1/(1+exp((-x+shift)*shrink));
+  return 1.0f/(1.0f+exp((-x+shift)*shrink));
+}
+color getColor(float mass){
+  float max = 2;
+  if(mass<=0){
+    return color(255,183, 255);
+  }else if(mass>max){
+    return color(0, 183, 255);
+  }else{
+    return color(255-mass/max*255, 183,255);
+  }
+    
 }
