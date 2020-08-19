@@ -1,6 +1,6 @@
 class Mun extends Particle{
   
-  float forceRange = 200;
+  //float moonForceRange = 200;
   
   //public Mun(){
   //  r=moon_min;
@@ -43,7 +43,7 @@ class Mun extends Particle{
     Vec2 ppos = p.body.getPosition();
     Vec2 f = body.getPosition().sub(ppos);
     float distance = f.length();
-    if(distance > box2d.scalarPixelsToWorld(forceRange)){return;}
+    if(distance > box2d.scalarPixelsToWorld(moonForceRange)){return;}
     float minDistance = box2d.scalarPixelsToWorld(r);
     distance = Math.max(minDistance, distance);
     f.normalize();
@@ -67,8 +67,8 @@ class Mun extends Particle{
     ellipse(pos.x, pos.y, pixelrockd, pixelrockd);
 
     noFill();
-    stroke(grav);
-    ellipse(pos.x, pos.y, forceRange*2, forceRange*2);
+    stroke(grav, 70);
+    ellipse(pos.x, pos.y,moonForceRange*2, moonForceRange*2);
   }
   void displayAround(Vec2 center, float radians){
       noStroke();
@@ -82,8 +82,8 @@ class Mun extends Particle{
       ellipse(displayedpos.x, displayedpos.y, pixelrockd, pixelrockd);
       
       noFill();
-      stroke(grav);
-      ellipse(displayedpos.x, displayedpos.y, forceRange*2, forceRange*2);
+      stroke(grav, 70);
+      ellipse(displayedpos.x, displayedpos.y, moonForceRange*2, moonForceRange*2);
     
     popMatrix();
   }

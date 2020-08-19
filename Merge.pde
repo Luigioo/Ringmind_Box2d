@@ -45,10 +45,10 @@ class Merge{
       float r = (float)Math.sqrt(this.m/density/PI);
       r = box2d.scalarWorldToPixels(r);
       float bstprob = sigmoid(r, 30.0f, 3.0f/15.0f);
-      println(r);
+      //println(r);
       if(random(1)<bstprob){
         burst = true;
-        println(bstprob);
+        //println(bstprob);
       }
       
       toaddnremove.add(this);

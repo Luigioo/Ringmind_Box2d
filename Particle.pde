@@ -37,7 +37,7 @@ class Particle {
   void setOrbitVelocity(Planet pn){
     Vec2 dis = pn.worldPosition.sub(body.getPosition());
     float R = dis.length();
-    float _t = G*pn.mass/R;
+    float _t = G*planetMass/R;
     float v = (float)Math.sqrt(_t);
     dis.normalize();
     dis = new Vec2(-dis.y, dis.x);

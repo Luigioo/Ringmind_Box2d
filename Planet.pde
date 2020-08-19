@@ -1,9 +1,9 @@
 class Planet{
   
-    float G = 6.674e-11f;
-    float mass = 1e13f;
-    float minPixelsDistance = 70;
-    float forceRange = 500;
+    //float G = 6.674e-11f;
+    //float planetMass = 1e14f;
+    //float planetMinPixelsDistance = 70;
+    //float planetForceRange = 500;
     Vec2 pixelPosition = new Vec2(width/2, height/2);
     Vec2 worldPosition = box2d.coordPixelsToWorld(pixelPosition);
 
@@ -13,11 +13,11 @@ class Planet{
         Vec2 f = worldPosition.sub(ppos);
         float distance = f.length();
         //if(distance > box2d.scalarPixelsToWorld(500)){return;}
-        float minDistance = box2d.scalarPixelsToWorld(minPixelsDistance);
-        distance = Math.min(box2d.scalarPixelsToWorld(500), distance);
+        float minDistance = box2d.scalarPixelsToWorld(planetMinPixelsDistance);
+        distance = Math.min(box2d.scalarPixelsToWorld(planetForceRange), distance);
         distance = Math.max(minDistance, distance);
         f.normalize();
-        f = f.mulLocal(G*((mass*p.body.getMass())/(distance*distance)));
+        f = f.mulLocal(G*((planetMass*p.body.getMass())/(distance*distance)));
         p.body.applyForce(f, p.body.getWorldCenter());
     }
     
@@ -25,10 +25,10 @@ class Planet{
         Vec2 ppos = c.worldpos;
         Vec2 f = box2d.coordPixelsToWorld(pixelPosition).sub(ppos);
         float distance = f.length();
-        float minDistance = box2d.scalarPixelsToWorld(minPixelsDistance);
+        float minDistance = box2d.scalarPixelsToWorld(planetMinPixelsDistance);
         distance = Math.max(minDistance, distance);
         f.normalize();
-        f = f.mulLocal(G*((mass/(distance*distance))));
+        f = f.mulLocal(G*((planetMass/(distance*distance))));
         c.addvel(f);
     }
     
@@ -36,12 +36,12 @@ class Planet{
         noFill();
         stroke(planetColor);
         //fill(planetColor);
-        ellipse(pixelPosition.x,pixelPosition.y, minPixelsDistance*2, minPixelsDistance*2);
+        ellipse(pixelPosition.x,pixelPosition.y, planetMinPixelsDistance*2, planetMinPixelsDistance*2);
         
         noFill();
         stroke(grav);
-        ellipse(pixelPosition.x,pixelPosition.y, forceRange*2, forceRange*2);
-        //drawGradient(pixelPosition.x, pixelPosition.y, forceRange*2, grav);
+        ellipse(pixelPosition.x,pixelPosition.y, planetForceRange*2, planetForceRange*2);
+        //drawGradient(pixelPosition.x, pixelPosition.y, planetForceRange*2, grav);
     }
     
     void displayAround(Vec2 center, float radians){
@@ -51,11 +51,11 @@ class Planet{
       pushMatrix();
         Vec2 displayedpos = pixelPosition.sub(center);
         rotate(radians);
-        ellipse(displayedpos.x, displayedpos.y, minPixelsDistance*2, minPixelsDistance*2);
+        ellipse(displayedpos.x, displayedpos.y, planetMinPixelsDistance*2, planetMinPixelsDistance*2);
       
         noFill();
         stroke(grav);
-        ellipse(displayedpos.x,displayedpos.y, forceRange*2, forceRange*2);
+        ellipse(displayedpos.x,displayedpos.y, planetForceRange*2, planetForceRange*2);
       popMatrix();
     }
     

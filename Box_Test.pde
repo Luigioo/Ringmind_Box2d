@@ -1,7 +1,4 @@
-// The Nature of Code
-// Daniel Shiffman
-// http://natureofcode.com
-
+import controlP5.*;
 import shiffman.box2d.*;
 import org.jbox2d.collision.shapes.*;
 import org.jbox2d.common.*;
@@ -9,46 +6,60 @@ import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.*;
 
 
-// A list for all of our rectangles
 ArrayList<Particle> pars;
 ArrayList<Mun> muns = new ArrayList<Mun>();
 ArrayList<Merge> toaddnremove = new ArrayList<Merge>();
+ControlP5 cp5;
+ArrayList<Putton> puttons = new ArrayList<Putton>();
 
 Box2DProcessing box2d;
 Planet planet;
 Camera camera;
 
-float G = 6.674e-11f;
-int partis = 500;
-float inner_ringdius = 300f;
-float outter_ringdius = 430f;
-float moon_min = 8.0f;
+//adjustable parameters
+float G = 6.674e-11f;//gravity constant
+int partis = 600;//number of initial particals
+float inner_ringdius = 300f;//inner radius of the ring
+float outter_ringdius = 430f;//outter radius of the ring
+float moon_min = 8.0f;//minimum mass if a moon
 //float moon_max = 16.0f;
-int burstNum = 8;
-float burstAccel = 0.01f;
-float rockDensity = 5.0f;
-float iceDensity = 1.0f;
-float defaultMass = 0.1f*PI;
+int burstNum = 8;//number of particles generated after a burst
+float burstAccel = 0.01f;//change of speed for bursted particles(not implemented yet)
+float rockDensity = 5.0f;//density of rock(black part)
+float iceDensity = 1.0f;//density of ice(non-black part)
+float defaultMass = 0.3f*PI;//initial mass of a particle
+float planetForceRange = 500f;//planetary gravity's maximum range(the big circle)
+float planetMass = 1e14f;
+float planetMinPixelsDistance = 70f;//planetary gravity's minimum range(the small circle)
+float moonForceRange = 200f;
 
+//colors
 color backColor = color(27, 38, 44);
 color grav = color(0,183,194);
 color planetColor = color(5, 219, 242);
 color rockColor = color(0);
-
+//others
 boolean previousM = false;
 boolean currentM = false;
 Vec2[] burstVel;
 
 void setup() {
-  size(1200, 1200);
+  size(1600, 1200);
   //frameRate(30);
-  // Initialize and create the Box2D world
+
+  init();
+  initControls();
+}
+void init(){
   box2d = new Box2DProcessing(this);  
   box2d.createWorld();
   box2d.setGravity(0,0);
   box2d.listenForCollisions();
 
   pars = new ArrayList<Particle>();
+  muns = new ArrayList<Mun>();
+  toaddnremove = new ArrayList<Merge>();
+  puttons = new ArrayList<Putton>();
   planet = new Planet();
   
   for(int i=0;i<partis;i++){
@@ -75,7 +86,6 @@ void setup() {
   //println(box2d.scalarPixelsToWorld(1));
   
 }
-
 void draw() {
 
   background(backColor);
@@ -88,12 +98,7 @@ void draw() {
   }
   toaddnremove.clear();
   
-  // When the mouse is clicked, add a new particle
-  if(!previousM && mousePressed){
-    Particle p = new Particle(mouseX, mouseY);
-    p.setOrbitVelocity(planet);
-    pars.add(p);
-  }
+
   //apply gravity
   for (int i = pars.size()-1; i >= 0; i--) {
     Particle p = pars.get(i);   
@@ -120,11 +125,19 @@ void draw() {
   }
   
   //handle inputs
+  // When the mouse is clicked, add a new particle
+  //if(!previousM && mousePressed){
+  //  Particle p = new Particle(mouseX, mouseY);
+  //  p.setOrbitVelocity(planet);
+  //  pars.add(p);
+  //}
   if(mousePressed){
     previousM = true;
   }else{
     previousM = false;
   }
+  
+  updateControls();
 }
 
 void beginContact(Contact cp){
