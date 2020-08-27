@@ -55,16 +55,21 @@ public void initControls(){
   puttons.add(new Putton("rockDensity", 50, 170, 5, 4));
   puttons.add(new Putton("iceDensity", 50, 190, 1f, .6f));
   
-  puttons.add(new Putton("defaultMass", 50, 210, 0.3f*PI, 1.3f*PI, true));
+  puttons.add(new Putton("defaultMass", 50, 210, 0.1f*PI, 1.0f*PI, true));
   
-  puttons.add(new Putton("planetForceRange", 50, 230, 500, 200));
+  puttons.add(new Putton("planetForceRange", 50, 230, 700, 200));
   puttons.add(new Putton("planetMass", 50, 250, 0.5e14f, 2.0e14f, true));
   puttons.add(new Putton("planetMinPixelsDistance", 50, 270, 70, 60));
   puttons.add(new Putton("moonForceRange", 50, 290, 200, 100));
+  puttons.add(new Putton("relativeSize", 50, 310, 0.1f, 0.1f));
+  puttons.add(new Putton("combinedSize", 50, 330, 8.0f, 7.0f));
+  puttons.add(new Putton("rocheLimit", 50, 350, 350f, 300f));
+  puttons.add(new Putton("roche_check_frequency", 50, 370, 5, 4));
+  puttons.add(new Putton("burstAccel", 50, 390, 2f, 1.99f));
   
   cp5.addButton("resetCtrls")
    .setValue(0)
-   .setPosition(50,320)
+   .setPosition(50,450)
    .setSize(200,19)
    .setFont(createFont("Arial",14))
    ;

@@ -23,46 +23,50 @@ class Merge{
     if(p1.isRemoved || p2.isRemoved) {return;}
     
     this.m = b1.getMass()+b2.getMass();
-    float prob = sigmoid(m, moon_min*0.6, 3.0f/moon_min);
-    if(random(1)<prob){
-      //println(prob);
-    //if(true){
-      if(p1 instanceof Mun){muns.remove(p1);}else{pars.remove(p1);}
-      if(p2 instanceof Mun){muns.remove(p2);}else{pars.remove(p2);}
-      p1.isRemoved = true;
-      p2.isRemoved = true;
-      
-      //Vec2 newpos = box2d.coordWorldToPixels(b1.getPosition()).add(box2d.coordWorldToPixels((b2.getPosition())));
-      //float newr = (float)Math.sqrt(p1.r*p1.r+p2.r*p2.r);
-      //newpos.mulLocal(0.5f);
-      ////println(newpos.x);
-      ////println(newpos.y);
-      ////println(newr);
-      //Merge tp = new Merge(newpos, newr, b1, b2);
-      
-      calc_properties(p1,p2,b1,b2);
-      float density = rockPercent*rockDensity+(1-rockPercent)*iceDensity;
-      float r = (float)Math.sqrt(this.m/density/PI);
-      r = box2d.scalarWorldToPixels(r);
-      float bstprob = sigmoid(r, 30.0f, 3.0f/15.0f);
-      //println(r);
-      if(random(1)<bstprob){
-        burst = true;
-        //println(bstprob);
+    
+    float relSize = (b1.getMass()-b2.getMass())/this.m;
+    relSize = Math.abs(relSize);
+    float prob_relSize = sigmoid(relSize, relativeSize, 2/relativeSize);
+    float prob_combined = sigmoid(m, combinedSize/2, 4/combinedSize);
+    Vec2 rochePos = box2d.coordWorldToPixels(b1.getPosition());
+    if(random(1)>prob_relSize && roche_check(rochePos)){//if merge
+      //println("relsize pass");
+      if(random(1)>prob_combined){
+        //println("combined pass");
+        //println(prob);
+      //if(true){
+        if(p1 instanceof Mun){muns.remove(p1);}else{pars.remove(p1);}
+        if(p2 instanceof Mun){muns.remove(p2);}else{pars.remove(p2);}
+        p1.isRemoved = true;
+        p2.isRemoved = true;
+        
+        //Vec2 newpos = box2d.coordWorldToPixels(b1.getPosition()).add(box2d.coordWorldToPixels((b2.getPosition())));
+        //float newr = (float)Math.sqrt(p1.r*p1.r+p2.r*p2.r);
+        //newpos.mulLocal(0.5f);
+        ////println(newpos.x);
+        ////println(newpos.y);
+        ////println(newr);
+        //Merge tp = new Merge(newpos, newr, b1, b2);
+        
+        calc_properties(p1,p2,b1,b2);
+        float density = rockPercent*rockDensity+(1-rockPercent)*iceDensity;
+        float r = (float)Math.sqrt(this.m/density/PI);
+        r = box2d.scalarWorldToPixels(r);
+        float bstprob = sigmoid(r, 30.0f, 3.0f/15.0f);
+        //println(r);
+        if(random(1)<bstprob){
+          burst = true;
+          //println(bstprob);
+        }
+        
+        toaddnremove.add(this);
       }
-      
-      toaddnremove.add(this);
     }
   }
-  //Merge(Particle p1, Particle p2, Body b1, Body b2){
-  //  calc_properties(p1,p2,b1,b2);
-  //}
-  //Merge(Vec2 p, float r, Body b1, Body b2){
-  //  pos = p;
-  //  this.r = r;
-  //  this.b1 = b1;
-  //  this.b2 = b2;
-  //}
+  Merge(){};
+  
+
+  
   
   void calc_properties(Particle p1, Particle p2, Body b1, Body b2){
     this.b1 = b1;
@@ -86,34 +90,45 @@ class Merge{
     v1.addLocal(v2);
     v1.mulLocal(1/totalm);
     this.vel = v1;
-    
     //rock percent
     m = totalm;
     rockPercent = (p1.rockPercent*m1+p2.rockPercent*m2)/totalm;
-    
   }
+  
+  //void calc_position(Body b1, Body b2){
+  //  float m1 = b1.getMass();
+  //  float m2 = b2.getMass();
+  //  float totalm = m1+m2;
+  //  Vec2 displace = b2.getPosition().sub(b1.getPosition());
+  //  float posx = displace.x / totalm * m2;
+  //  float posy = displace.y / totalm * m2;
+  //  posx += b1.getPosition().x;
+  //  posy += b1.getPosition().y;
+  //  this.pos = box2d.coordWorldToPixels(new Vec2(posx, posy));
+  //}
   
   //
   void reborn(){
     if(this.burst){
       //float newr = this.r*this.r/burstNum;
       //newr = (float)Math.sqrt(newr);
-      float newm = this.m/burstNum;
+      //float newm = this.m/burstNum;
       
-      for(int i=burstNum-1;i>=0;i--){
-        float radians = 2*PI*i/burstNum;
-        float radius = 20.0f;
-        float x = radius*(float)Math.cos(radians)+this.pos.x;
-        float y = radius*(float)Math.sin(radians)+this.pos.y;
-        Particle newp = new Particle(x,y,newm, rockPercent);
-        //newp.setOrbitVelocity(planet);
-        Vec2 newvel = this.vel.clone();
-        //newvel.subLocal(burstVel[i]);
-        //newvel.addLocal(burstVel[i]);
-        //newp.body.setLinearVelocity(newvel.add(burstVel[i]));
-        newp.body.setLinearVelocity(newvel);
-        pars.add(newp);
-      }
+      //for(int i=burstNum-1;i>=0;i--){
+      //  float radians = 2*PI*i/burstNum;
+      //  float radius = 20.0f;
+      //  float x = radius*(float)Math.cos(radians)+this.pos.x;
+      //  float y = radius*(float)Math.sin(radians)+this.pos.y;
+      //  Particle newp = new Particle(x,y,newm, rockPercent);
+      //  //newp.setOrbitVelocity(planet);
+      //  Vec2 newvel = this.vel.clone();
+      //  //newvel.subLocal(burstVel[i]);
+      //  //newvel.addLocal(burstVel[i]);
+      //  //newp.body.setLinearVelocity(newvel.add(burstVel[i]));
+      //  newp.body.setLinearVelocity(newvel);
+      //  pars.add(newp);
+      //}
+      make_burst(this.pos, this.m, this.vel);
     }
     else if(this.m>moon_min){
       Mun m = new Mun(this.pos.x, this.pos.y, this.m, rockPercent);
@@ -128,5 +143,59 @@ class Merge{
     box2d.destroyBody(this.b1);
     box2d.destroyBody(this.b2);
   }
+  void make_burst(Vec2 pos, float mass, Vec2 vel){
+    float newm = mass/burstNum;
+    float borrowedVel = 0f;
+    for(int i=burstNum-1;i>=0;i--){
+      float radians = 2*PI*i/burstNum;
+      float radius = 20.0f;
+      float x = radius*(float)Math.cos(radians)+pos.x;
+      float y = radius*(float)Math.sin(radians)+pos.y;
+      Particle newp = new Particle(x,y,newm, rockPercent);
+      //newp.setOrbitVelocity(planet);
+      Vec2 newvel = vel.clone();
+      if(i!=0){
+        float mag = newvel.length();
+        float sign = random(2)-1;
+        println("sign: "+sign);
+        float addedVel = burstAccel*sign;
+        borrowedVel -= addedVel;
+        mag += addedVel;
+        newvel.normalize();
+        newvel.mulLocal(mag);
+      }else{
+        float mag = newvel.length();
+        mag += borrowedVel;
+        newvel.normalize();
+        newvel.mulLocal(mag);
+      }
+      //newvel.subLocal(burstVel[i]);
+      //newvel.addLocal(burstVel[i]);
+      //newp.body.setLinearVelocity(newvel.add(burstVel[i]));
+      newp.body.setLinearVelocity(newvel);
+      pars.add(newp);
+    }
+  }
+}
+
+class Burst extends Merge{
   
+  Burst(Particle p){
+    if(p.body.getMass()<=defaultMass){
+      return;    
+    }
+    pars.remove(p);
+    Vec2 pos = box2d.coordWorldToPixels(p.body.getPosition());
+    float mass = p.body.getMass();
+    make_burst(pos, mass, p.body.getLinearVelocity());
+    box2d.destroyBody(p.body);
+  }
+  
+  
+}
+
+boolean roche_check(Vec2 position){
+  float distance = planet.pixelPosition.sub(position).length();
+  float prob = sigmoid(distance, rocheLimit, 100f/rocheLimit);
+  return random(1)<prob;
 }

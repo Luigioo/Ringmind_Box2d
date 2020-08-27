@@ -50,6 +50,14 @@ class Particle {
     r = (float)Math.sqrt(totalmass/density/PI);
   }
   // 
+  
+  void roche_update(){
+    Vec2 pos = box2d.coordWorldToPixels(body.getPosition());
+    if(!roche_check(pos)){
+      new Burst(this);
+    }
+  }
+  
   void display() {
     // We look at each body and get its screen position
     Vec2 pos = box2d.getBodyPixelCoord(body);

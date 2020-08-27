@@ -24,7 +24,6 @@ float outter_ringdius = 430f;//outter radius of the ring
 float moon_min = 8.0f;//minimum mass if a moon
 //float moon_max = 16.0f;
 int burstNum = 8;//number of particles generated after a burst
-float burstAccel = 0.01f;//change of speed for bursted particles(not implemented yet)
 float rockDensity = 5.0f;//density of rock(black part)
 float iceDensity = 1.0f;//density of ice(non-black part)
 float defaultMass = 0.3f*PI;//initial mass of a particle
@@ -32,6 +31,13 @@ float planetForceRange = 500f;//planetary gravity's maximum range(the big circle
 float planetMass = 1e14f;
 float planetMinPixelsDistance = 70f;//planetary gravity's minimum range(the small circle)
 float moonForceRange = 200f;
+float relativeSize = 0.1f;
+float combinedSize = 8.0f;
+float rocheLimit = 350f;
+int roche_check_frequency = 5;
+float burstAccel = 2f;//change of speed for bursted particles
+
+
 
 //colors
 color backColor = color(27, 38, 44);
@@ -42,6 +48,7 @@ color rockColor = color(0);
 boolean previousM = false;
 boolean currentM = false;
 Vec2[] burstVel;
+int roche_freq_helper = 0;
 
 void setup() {
   size(1600, 1200);
@@ -97,8 +104,17 @@ void draw() {
     tp.reborn();
   }
   toaddnremove.clear();
-  
 
+  //bursts due to roche limit
+  if(roche_freq_helper==0){
+    for(int i=pars.size()-1;i>=0;i--){
+      pars.get(i).roche_update();
+    }
+    roche_freq_helper = roche_check_frequency;
+    println(roche_check(new Vec2(mouseX, mouseY)));
+  }else{
+    roche_freq_helper--;
+  }
   //apply gravity
   for (int i = pars.size()-1; i >= 0; i--) {
     Particle p = pars.get(i);   
@@ -154,6 +170,9 @@ void displayNormal(){
   for(Mun mo:muns){
     mo.display();
   }
+  stroke(122);
+  noFill();
+  ellipse(width/2, height/2, rocheLimit*2,rocheLimit*2);
 }
 void displayAll(){
   
