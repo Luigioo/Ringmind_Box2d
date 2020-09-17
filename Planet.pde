@@ -1,9 +1,5 @@
 class Planet{
   
-    //float G = 6.674e-11f;
-    //float planetMass = 1e14f;
-    //float planetMinPixelsDistance = 70;
-    //float planetForceRange = 500;
     Vec2 pixelPosition = new Vec2(width/2, height/2);
     Vec2 worldPosition = box2d.coordPixelsToWorld(pixelPosition);
 

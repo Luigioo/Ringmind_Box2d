@@ -1,21 +1,5 @@
 class Mun extends Particle{
   
-  //float moonForceRange = 200;
-  
-  //public Mun(){
-  //  r=moon_min;
-  //  float radians = rdbt(0,2*PI);
-  //  float this_ringdius = (inner_ringdius+outter_ringdius)/2;
-  //  float x = this_ringdius*(float)Math.cos(radians)+planet.pixelPosition.x;
-  //  float y = this_ringdius*(float)Math.sin(radians)+planet.pixelPosition.y;
-    
-  //  makeBody(x, y, r);
-  //  body.setUserData(this);
-  //  setOrbitVelocity(planet);
-    
-  //  col = getColor(r);
-
-  //}
   
   public Mun(float x, float y, float m_, float rp) {
     m = m_;

@@ -33,31 +33,13 @@ class Merge{
       //println("relsize pass");
       if(random(1)<prob_combined){
         //println("combined pass");
-        //println(prob);
-      //if(true){
         if(p1 instanceof Mun){muns.remove(p1);}else{pars.remove(p1);}
         if(p2 instanceof Mun){muns.remove(p2);}else{pars.remove(p2);}
         p1.isRemoved = true;
         p2.isRemoved = true;
         
-        //Vec2 newpos = box2d.coordWorldToPixels(b1.getPosition()).add(box2d.coordWorldToPixels((b2.getPosition())));
-        //float newr = (float)Math.sqrt(p1.r*p1.r+p2.r*p2.r);
-        //newpos.mulLocal(0.5f);
-        ////println(newpos.x);
-        ////println(newpos.y);
-        ////println(newr);
-        //Merge tp = new Merge(newpos, newr, b1, b2);
-        
         calc_properties(p1,p2,b1,b2);
         float density = rockPercent*rockDensity+(1-rockPercent)*iceDensity;
-        //float r = (float)Math.sqrt(this.m/density/PI);
-        //r = box2d.scalarWorldToPixels(r);
-        //float bstprob = sigmoid(r, 30.0f, 3.0f/15.0f);
-        ////println(r);
-        //if(random(1)<bstprob){
-        //  burst = true;
-        //  //println(bstprob);
-        //}
         
         toaddnremove.add(this);
       }
@@ -77,12 +59,13 @@ class Merge{
     //m2 *= m2;
     float totalm = m1+m2;
     Vec2 displace = b2.getPosition().sub(b1.getPosition());
+    //here calculates the new position for merged moon
     float posx = displace.x / totalm * m2;
     float posy = displace.y / totalm * m2;
     posx += b1.getPosition().x;
     posy += b1.getPosition().y;
     this.pos = box2d.coordWorldToPixels(new Vec2(posx, posy));
-    //this.r = (float)Math.sqrt(p1.r*p1.r+p2.r*p2.r);
+
     Vec2 v1 = b1.getLinearVelocity().clone();
     Vec2 v2 = b2.getLinearVelocity().clone();
     v1.mulLocal(m1);
@@ -90,44 +73,16 @@ class Merge{
     v1.addLocal(v2);
     v1.mulLocal(1/totalm);
     this.vel = v1;
-    //rock percent
+
     m = totalm;
     rockPercent = (p1.rockPercent*m1+p2.rockPercent*m2)/totalm;
   }
   
-  //void calc_position(Body b1, Body b2){
-  //  float m1 = b1.getMass();
-  //  float m2 = b2.getMass();
-  //  float totalm = m1+m2;
-  //  Vec2 displace = b2.getPosition().sub(b1.getPosition());
-  //  float posx = displace.x / totalm * m2;
-  //  float posy = displace.y / totalm * m2;
-  //  posx += b1.getPosition().x;
-  //  posy += b1.getPosition().y;
-  //  this.pos = box2d.coordWorldToPixels(new Vec2(posx, posy));
-  //}
-  
+
   //
   void reborn(){
     if(this.burst){
-      //float newr = this.r*this.r/burstNum;
-      //newr = (float)Math.sqrt(newr);
-      //float newm = this.m/burstNum;
-      
-      //for(int i=burstNum-1;i>=0;i--){
-      //  float radians = 2*PI*i/burstNum;
-      //  float radius = 20.0f;
-      //  float x = radius*(float)Math.cos(radians)+this.pos.x;
-      //  float y = radius*(float)Math.sin(radians)+this.pos.y;
-      //  Particle newp = new Particle(x,y,newm, rockPercent);
-      //  //newp.setOrbitVelocity(planet);
-      //  Vec2 newvel = this.vel.clone();
-      //  //newvel.subLocal(burstVel[i]);
-      //  //newvel.addLocal(burstVel[i]);
-      //  //newp.body.setLinearVelocity(newvel.add(burstVel[i]));
-      //  newp.body.setLinearVelocity(newvel);
-      //  pars.add(newp);
-      //}
+
       make_burst(this.pos, this.m, this.vel);
     }
     else if(this.m>moon_min){
@@ -148,7 +103,7 @@ class Merge{
     float borrowedVel = 0f;
     for(int i=burstNum-1;i>=0;i--){
       float radians = 2*PI*i/burstNum;
-      float radius = 20.0f;
+      float radius = newm*20.0f;
       float x = radius*(float)Math.cos(radians)+pos.x;
       float y = radius*(float)Math.sin(radians)+pos.y;
       Particle newp = new Particle(x,y,newm, rockPercent);
@@ -184,7 +139,11 @@ class Burst extends Merge{
     if(p.body.getMass()<=minimumMass){
       return;    
     }
-    pars.remove(p);
+    if(p instanceof Mun){
+      muns.remove(p);
+    }else{
+      pars.remove(p);
+    }
     Vec2 pos = box2d.coordWorldToPixels(p.body.getPosition());
     float mass = p.body.getMass();
     make_burst(pos, mass, p.body.getLinearVelocity());

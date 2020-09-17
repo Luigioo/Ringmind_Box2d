@@ -1,3 +1,7 @@
+//
+
+
+
 import controlP5.*;
 import shiffman.box2d.*;
 import org.jbox2d.collision.shapes.*;
@@ -58,6 +62,7 @@ Vec2[] burstVel;
 int burst_freq_helper = 0;
 boolean spacePressed = false;
 boolean cPressed = false;
+boolean pPressed = true;
 
 
 void setup() {
@@ -91,9 +96,7 @@ void init(){
 
   camera = new Camera();
   camera.setOrbitVelocity(planet);
-  //Moon m2 = new Moon();
-  //m2.setOrbitVelocity(planet);
-  //moons.add(m2);
+
   Mun mu = new Mun(camera.pos.x, camera.pos.y);
   mu.setOrbitVelocity(planet);
   //print(mu.body.getMass());
@@ -104,69 +107,73 @@ void init(){
   
 }
 void draw() {
-
-  background(backColor);
-  //println(frameRate);
-  box2d.step(1f/60f,10,8);
-  
-  //particles and bodies to be added and removed
-  for(Merge tp:toaddnremove){
-    tp.reborn();
-  }
-  toaddnremove.clear();
-
-  //bursts due to roche limit
-  if(burst_freq_helper==0){
-    for(int i=pars.size()-1;i>=0;i--){
-      pars.get(i).roche_update();
+  if(pPressed){
+    background(backColor);
+    //println(frameRate);
+    box2d.step(1f/60f,10,8);
+    
+    //particles and bodies to be added and removed
+    for(Merge tp:toaddnremove){
+      tp.reborn();
     }
-    burst_freq_helper = burst_check_frequency;
-    //println(roche_check(new Vec2(mouseX, mouseY)));
-  }else{
-    burst_freq_helper--;
-  }
-  //apply gravity
-  for (int i = pars.size()-1; i >= 0; i--) {
-    Particle p = pars.get(i);   
-    planet.applyG(p);
+    toaddnremove.clear();
+  
+    //bursts due to roche limit
+    if(burst_freq_helper==0){
+      for(int i=pars.size()-1;i>=0;i--){
+        pars.get(i).roche_update();
+      }
+      for(int i=muns.size()-1;i>=0;i--){
+        muns.get(i).roche_update();
+      }
+      burst_freq_helper = burst_check_frequency;
+      //println(roche_check(new Vec2(mouseX, mouseY)));
+    }else{
+      burst_freq_helper--;
+    }
+    //apply gravity
+    for (int i = pars.size()-1; i >= 0; i--) {
+      Particle p = pars.get(i);   
+      planet.applyG(p);
+      for(Mun mo:muns){
+        mo.applyG(p);
+      }
+    }
     for(Mun mo:muns){
-      mo.applyG(p);
+      for(Mun m2:muns){
+        if(mo!=m2){mo.applyG(m2);}
+      }
+      planet.applyG(mo);
     }
-  }
-  for(Mun mo:muns){
-    for(Mun m2:muns){
-      if(mo!=m2){mo.applyG(m2);}
+    planet.applyG(camera);
+    camera.update();
+    //camera.display();
+  
+    //display
+    if(cPressed){
+      displayAll();
+    }else{
+      displayNormal();
     }
-    planet.applyG(mo);
+    
+    //handle inputs
+    // When the mouse is clicked, add a new particle
+    //if(!previousM && mousePressed){
+    //  Particle p = new Particle(mouseX, mouseY);
+    //  p.setOrbitVelocity(planet);
+    //  pars.add(p);
+    //}
+    if(mousePressed){
+      previousM = true;
+    }else{
+      previousM = false;
+    }
+    //if(spacePressed){
+    //  spacePressed = fa
+    //}
+    
+    updateControls();
   }
-  planet.applyG(camera);
-  camera.update();
-  //camera.display();
-
-  //display
-  if(cPressed){
-    displayAll();
-  }else{
-    displayNormal();
-  }
-  
-  //handle inputs
-  // When the mouse is clicked, add a new particle
-  //if(!previousM && mousePressed){
-  //  Particle p = new Particle(mouseX, mouseY);
-  //  p.setOrbitVelocity(planet);
-  //  pars.add(p);
-  //}
-  if(mousePressed){
-    previousM = true;
-  }else{
-    previousM = false;
-  }
-  //if(spacePressed){
-  //  spacePressed = fa
-  //}
-  
-  updateControls();
 }
 
 void keyPressed(){
@@ -178,14 +185,14 @@ void keyPressed(){
     case 'c':
       cPressed = !cPressed;
     break;
+    case 'p':
+      pPressed = !pPressed;
     default:
     break;
     
   }
 }
-//void keyReleased(){
-//  if(key == '
-//}
+
 
 void beginContact(Contact cp){
   new Merge(cp);
