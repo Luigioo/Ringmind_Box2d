@@ -17,12 +17,14 @@ Planet planet;
 Camera camera;
 
 //adjustable parameters
+
+//setup
 float G = 6.674e-11f;//gravity constant
 int partis = 600;//number of initial particals
 float inner_ringdius = 300f;//inner radius of the ring
 float outter_ringdius = 430f;//outter radius of the ring
-float moon_min = 8.0f;//minimum mass if a moon
-//float moon_max = 16.0f;
+//play
+float moon_min = 8.0f;//minimum mass of a moon
 int burstNum = 8;//number of particles generated after a burst
 float rockDensity = 5.0f;//density of rock(black part)
 float iceDensity = 1.0f;//density of ice(non-black part)
@@ -31,13 +33,18 @@ float planetForceRange = 500f;//planetary gravity's maximum range(the big circle
 float planetMass = 1e14f;
 float planetMinPixelsDistance = 70f;//planetary gravity's minimum range(the small circle)
 float moonForceRange = 200f;
-float relativeSize = 0.1f;
-float combinedSize = 8.0f;
-float rocheLimit = 350f;
-int roche_check_frequency = 5;
+int burst_check_frequency = 5;
 float burstAccel = 2f;//change of speed for bursted particles
-
-
+float minimumMass = 0.1f*PI;
+//probabilities
+float relativeSize = 0.1f;
+float relativeSizeRange = 0.5f;
+float combinedSize = 5.0f;
+float combinedSizeRange = 2.0f;
+float rocheLimit = 350f;
+float rocheLimitRange = 50f;
+float burstSize = 15;
+float burstSizeRange = 5;
 
 //colors
 color backColor = color(27, 38, 44);
@@ -48,7 +55,10 @@ color rockColor = color(0);
 boolean previousM = false;
 boolean currentM = false;
 Vec2[] burstVel;
-int roche_freq_helper = 0;
+int burst_freq_helper = 0;
+boolean spacePressed = false;
+boolean cPressed = false;
+
 
 void setup() {
   size(1600, 1200);
@@ -106,14 +116,14 @@ void draw() {
   toaddnremove.clear();
 
   //bursts due to roche limit
-  if(roche_freq_helper==0){
+  if(burst_freq_helper==0){
     for(int i=pars.size()-1;i>=0;i--){
       pars.get(i).roche_update();
     }
-    roche_freq_helper = roche_check_frequency;
-    println(roche_check(new Vec2(mouseX, mouseY)));
+    burst_freq_helper = burst_check_frequency;
+    //println(roche_check(new Vec2(mouseX, mouseY)));
   }else{
-    roche_freq_helper--;
+    burst_freq_helper--;
   }
   //apply gravity
   for (int i = pars.size()-1; i >= 0; i--) {
@@ -134,7 +144,7 @@ void draw() {
   //camera.display();
 
   //display
-  if(keyPressed){
+  if(cPressed){
     displayAll();
   }else{
     displayNormal();
@@ -152,9 +162,30 @@ void draw() {
   }else{
     previousM = false;
   }
+  //if(spacePressed){
+  //  spacePressed = fa
+  //}
   
   updateControls();
 }
+
+void keyPressed(){
+  switch(key){
+    case ' ':
+      spacePressed = true;
+      init();
+    break;
+    case 'c':
+      cPressed = !cPressed;
+    break;
+    default:
+    break;
+    
+  }
+}
+//void keyReleased(){
+//  if(key == '
+//}
 
 void beginContact(Contact cp){
   new Merge(cp);
@@ -225,8 +256,8 @@ void calc_burst(){
 float rdbt(float min, float max){
   return (float)random(1)*(max-min)+min;
 }
-float sigmoid(float x, float shift, float shrink){
-  return 1.0f/(1.0f+exp((-x+shift)*shrink));
+float sigmoid(float x, float shift, float expand){
+  return 1.0f/(1.0f+exp((-x+shift)*(4/expand)));
 }
 color getColor(float mass){
   float max = 2;

@@ -26,12 +26,12 @@ class Merge{
     
     float relSize = (b1.getMass()-b2.getMass())/this.m;
     relSize = Math.abs(relSize);
-    float prob_relSize = sigmoid(relSize, relativeSize, 2/relativeSize);
-    float prob_combined = sigmoid(m, combinedSize/2, 4/combinedSize);
-    Vec2 rochePos = box2d.coordWorldToPixels(b1.getPosition());
-    if(random(1)>prob_relSize && roche_check(rochePos)){//if merge
+    float prob_relSize = sigmoid(relSize, relativeSize, relativeSizeRange);
+    float prob_combined = sigmoid(m, combinedSize, combinedSizeRange);
+    
+    if(random(1)<prob_relSize ){//if merge
       //println("relsize pass");
-      if(random(1)>prob_combined){
+      if(random(1)<prob_combined){
         //println("combined pass");
         //println(prob);
       //if(true){
@@ -50,14 +50,14 @@ class Merge{
         
         calc_properties(p1,p2,b1,b2);
         float density = rockPercent*rockDensity+(1-rockPercent)*iceDensity;
-        float r = (float)Math.sqrt(this.m/density/PI);
-        r = box2d.scalarWorldToPixels(r);
-        float bstprob = sigmoid(r, 30.0f, 3.0f/15.0f);
-        //println(r);
-        if(random(1)<bstprob){
-          burst = true;
-          //println(bstprob);
-        }
+        //float r = (float)Math.sqrt(this.m/density/PI);
+        //r = box2d.scalarWorldToPixels(r);
+        //float bstprob = sigmoid(r, 30.0f, 3.0f/15.0f);
+        ////println(r);
+        //if(random(1)<bstprob){
+        //  burst = true;
+        //  //println(bstprob);
+        //}
         
         toaddnremove.add(this);
       }
@@ -157,7 +157,7 @@ class Merge{
       if(i!=0){
         float mag = newvel.length();
         float sign = random(2)-1;
-        println("sign: "+sign);
+        // println("sign: "+sign);
         float addedVel = burstAccel*sign;
         borrowedVel -= addedVel;
         mag += addedVel;
@@ -181,7 +181,7 @@ class Merge{
 class Burst extends Merge{
   
   Burst(Particle p){
-    if(p.body.getMass()<=defaultMass){
+    if(p.body.getMass()<=minimumMass){
       return;    
     }
     pars.remove(p);

@@ -36,40 +36,59 @@ class Putton{
 public void initControls(){
   //println(PFont.list());
   cp5 = new ControlP5(this);
-  
-  //cp5.addTextlabel("label")
-  //  .setText("SETUP")
-  //  .setPosition(50,17)
-  //  .setColorValue(0xffE5F3FF)
-  //  .setFont(createFont("Arial",17))
-  //  ;
+  int off = 0;
+  cp5.addTextlabel("setup")
+    .setText("SETUP")
+    .setPosition(50,17)
+    .setColorValue(0xffE5F3FF)
+    .setFont(createFont("Arial",17))
+    ;
     
-  puttons.add(new Putton("G", 50,50, 3.674e-11f, 9.674e-11f, true));
-  
+  puttons.add(new Putton("G", 50,50, 6.674e-11f, 3.674e-11f));
   puttons.add(new Putton("partis", 50, 70, 600, 500));
-  puttons.add(new Putton("inner_ringius", 50, 90, 300f, 200f));
-  puttons.add(new Putton("outter_ringius", 50, 110, 430f, 200f));
+  puttons.add(new Putton("inner_ringdius", 50, 90, 300f, 200f));
+  puttons.add(new Putton("outter_ringdius", 50, 110, 430f, 200f));
   
-  puttons.add(new Putton("moon_min", 50, 130, 8, 4));
-  puttons.add(new Putton("burstNum", 50, 150, 8, 6));
-  puttons.add(new Putton("rockDensity", 50, 170, 5, 4));
-  puttons.add(new Putton("iceDensity", 50, 190, 1f, .6f));
+  off = 160;
+  cp5.addTextlabel("play")
+    .setText("PLAY")
+    .setPosition(50,off-25)
+    .setColorValue(0xffE5F3FF)
+    .setFont(createFont("Arial",17))
+  ;
+  puttons.add(new Putton("moon_min", 50, 0+off, 8, 4));
+  puttons.add(new Putton("burstNum", 50, 20+off, 8, 6));
+  puttons.add(new Putton("rockDensity", 50, 40+off, 5, 4));
+  puttons.add(new Putton("iceDensity", 50, 60+off, 1f, .6f));
+  puttons.add(new Putton("defaultMass", 50, 80+off, 0.3f*PI, 0.3f*PI));
+  puttons.add(new Putton("planetForceRange", 50, 100+off, 700, 200));
+  puttons.add(new Putton("planetMass", 50, 120+off, 0.5e14f, 2.0e14f, true));
+  puttons.add(new Putton("planetMinPixelsDistance", 50, 140+off, 70, 60));
+  puttons.add(new Putton("moonForceRange", 50, 160+off, 200, 100));
+  puttons.add(new Putton("burst_check_frequency", 50, 180+off, 5, 4));
+  puttons.add(new Putton("burstAccel", 50, 200+off, 2, 1));
+  puttons.add(new Putton("minimumMass", 50, 220+off, 0.1f*PI, 0.1f*PI));
   
-  puttons.add(new Putton("defaultMass", 50, 210, 0.1f*PI, 1.0f*PI, true));
-  
-  puttons.add(new Putton("planetForceRange", 50, 230, 700, 200));
-  puttons.add(new Putton("planetMass", 50, 250, 0.5e14f, 2.0e14f, true));
-  puttons.add(new Putton("planetMinPixelsDistance", 50, 270, 70, 60));
-  puttons.add(new Putton("moonForceRange", 50, 290, 200, 100));
-  puttons.add(new Putton("relativeSize", 50, 310, 0.1f, 0.1f));
-  puttons.add(new Putton("combinedSize", 50, 330, 8.0f, 7.0f));
-  puttons.add(new Putton("rocheLimit", 50, 350, 350f, 300f));
-  puttons.add(new Putton("roche_check_frequency", 50, 370, 5, 4));
-  puttons.add(new Putton("burstAccel", 50, 390, 2f, 1.99f));
+  off = 435;
+  cp5.addTextlabel("prob")
+  .setText("PROBABAILITIES")
+  .setPosition(50,off-25)
+  .setColorValue(0xffE5F3FF)
+  .setFont(createFont("Arial",17))
+;
+  puttons.add(new Putton("relativeSize", 50, 0+off, 0.1f, 0.1f));
+  puttons.add(new Putton("relativeSizeRange", 50, 20+off, 0.5f, 0.5f));
+  puttons.add(new Putton("combinedSize", 50, 40+off, 2.0f, 2.0f));
+  puttons.add(new Putton("combinedSizeRange", 50, 60+off, 2f, 2f));
+  puttons.add(new Putton("rocheLimit", 50, 80+off, 350f, 300f));
+  puttons.add(new Putton("rocheLimitRange", 50, 100+off, 50, 50));
+  puttons.add(new Putton("burtSize", 50, 120+off, 15, 15));
+  puttons.add(new Putton("burstSizeRange", 50, 140+off, 5, 5));
+
   
   cp5.addButton("resetCtrls")
    .setValue(0)
-   .setPosition(50,450)
+   .setPosition(50,650)
    .setSize(200,19)
    .setFont(createFont("Arial",14))
    ;

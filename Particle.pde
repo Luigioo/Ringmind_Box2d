@@ -53,7 +53,12 @@ class Particle {
   
   void roche_update(){
     Vec2 pos = box2d.coordWorldToPixels(body.getPosition());
-    if(!roche_check(pos)){
+    
+    float r = (float)Math.sqrt(this.m/density/PI);
+    r = box2d.scalarWorldToPixels(r);
+    float bstprob = sigmoid(r, burstSize, burstSizeRange);
+    //println(r);
+    if(!roche_check(pos)||random(1)<bstprob){
       new Burst(this);
     }
   }
